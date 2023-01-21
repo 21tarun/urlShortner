@@ -1,4 +1,3 @@
-const mongoose = require('mongoose')
 const urlModel = require('../models/urlModel')
 const isUrl = require("is-valid-http-url");
 const shortId = require('shortid')
@@ -24,7 +23,7 @@ redisClient.on("connect",async function(){
 
 // prepare function so that our redis module method return response in promise object, not by the call back function
 
-const SET_ASYNC =promisify(redisClient.SET).bind(redisClient)
+
 const GET_ASYNC =promisify(redisClient.GET).bind(redisClient)
 const SETEX_ASYNC=promisify(redisClient.SETEX).bind(redisClient)
 
@@ -40,7 +39,7 @@ const SETEX_ASYNC=promisify(redisClient.SETEX).bind(redisClient)
 
 const createUrl = async function (req, res) {
     try {
-        const longUrl = req.body.longUrl
+        const longUrl = req.body.longUrl.trim()
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "body is empty" })
         if (!longUrl) return res.status(400).send({ status: false, message: "url is required" })
         if (!isUrl(longUrl)) return res.status(400).send({ status: false, message: "url invalid" })
@@ -94,7 +93,7 @@ const getUrl = async function (req, res) {
         
         if(cacheData) {
             console.log("I am in cache")
-            return res.status(302).redirect(cacheData)
+            return res.status(302).redirect(JSON.parse(cacheData))
         }
         else{
             console.log("i am not in cache")
